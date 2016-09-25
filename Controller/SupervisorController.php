@@ -4,6 +4,7 @@ namespace YZ\SupervisorBundle\Controller;
 
 use Psr\Log\LoggerAwareTrait;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -142,14 +143,12 @@ class SupervisorController extends Controller
 
         if ($request->isXmlHttpRequest()) {
             $processInfo = $process;
-            $res = json_encode([
-                'success' => $success,
-                'message' => implode(', ', $this->get('session')->getFlashBag()->get('error', array())),
-                'processInfo' => $processInfo,
-            ]);
 
-            return new Response($res, 200, [
-                'Content-Type' => 'application/json',
+            return new JsonResponse([
+              'success' => $success,
+              'message' => implode(', ', $this->get('session')->getFlashBag()->get('error', array())),
+              'processInfo' => $processInfo,
+            ], 200, [
                 'Cache-Control' => 'no-store',
             ]);
         }
@@ -184,13 +183,10 @@ class SupervisorController extends Controller
         }
 
         if ($request->isXmlHttpRequest()) {
-            $res = json_encode([
-                'processesInfo' => $processesInfo,
-            ]);
-
-            return new Response($res, 200, [
-                'Content-Type' => 'application/json',
-                'Cache-Control' => 'no-store',
+            return new JsonResponse([
+              'processesInfo' => $processesInfo,
+            ], 200, [
+              'Cache-Control' => 'no-store',
             ]);
         }
 
@@ -359,19 +355,16 @@ class SupervisorController extends Controller
                 $processInfo[$public] = $infos[$public];
             }
 
-            $res = json_encode([
-                'supervisor' => $key,
-                'processInfo' => $processInfo,
-                'controlLink' => $this->generateUrl('supervisor.process.startStop', [
-                    'key' => $key,
-                    'name' => $name,
-                    'group' => $group,
-                    'start' => ($infos['state'] == 10 || $infos['state'] == 20 ? '0' : '1'),
-                ]),
-            ]);
-
-            return new Response($res, 200, [
-                'Content-Type' => 'application/json',
+            return new JsonResponse([
+              'supervisor' => $key,
+              'processInfo' => $processInfo,
+              'controlLink' => $this->generateUrl('supervisor.process.startStop', [
+                'key' => $key,
+                'name' => $name,
+                'group' => $group,
+                'start' => ($infos['state'] == 10 || $infos['state'] == 20 ? '0' : '1'),
+              ]),
+            ], 200, [
                 'Cache-Control' => 'no-store',
             ]);
         }
@@ -425,10 +418,7 @@ class SupervisorController extends Controller
             ];
         }
 
-        $res = json_encode($processesInfo);
-
-        return new Response($res, 200, [
-            'Content-Type' => 'application/json',
+        return new JsonResponse($processesInfo, 200, [
             'Cache-Control' => 'no-store',
         ]);
     }
