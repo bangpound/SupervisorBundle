@@ -11,7 +11,7 @@ use Supervisor\Connector\XmlRpc;
 use Supervisor\Supervisor;
 
 /**
- * SupervisorManager
+ * SupervisorManager.
  */
 class SupervisorManager
 {
@@ -21,7 +21,7 @@ class SupervisorManager
     private $supervisors = array();
 
     /**
-     * Constuctor
+     * Constuctor.
      *
      * @param array $supervisorsConfiguration Configuration in the symfony parameters
      */
@@ -54,7 +54,7 @@ class SupervisorManager
     }
 
     /**
-     * Get all supervisors
+     * Get all supervisors.
      *
      * @return Supervisor[]
      */
@@ -64,7 +64,7 @@ class SupervisorManager
     }
 
     /**
-     * Get Supervisor by key
+     * Get Supervisor by key.
      *
      * @param string $key
      *

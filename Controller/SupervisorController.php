@@ -7,13 +7,13 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * SupervisorController
+ * SupervisorController.
  */
 class SupervisorController extends Controller
 {
     private static $publicInformations = ['description', 'group', 'name', 'state', 'statename'];
     /**
-     * indexAction
+     * indexAction.
      */
     public function indexAction()
     {
@@ -25,15 +25,16 @@ class SupervisorController extends Controller
     }
 
     /**
-     * startStopProcessAction
+     * startStopProcessAction.
      *
-     * @param string  $start 1 to start, 0 to stop it
-     * @param string  $key   The key to retrieve a Supervisor object
-     * @param string  $name  The name of a process
-     * @param string  $group The group of a process
+     * @param string  $start   1 to start, 0 to stop it
+     * @param string  $key     The key to retrieve a Supervisor object
+     * @param string  $name    The name of a process
+     * @param string  $group   The group of a process
      * @param Request $request
      *
-     * @return \Symfony\Component\HttpFoundation\Response represents an HTTP response.
+     * @return \Symfony\Component\HttpFoundation\Response represents an HTTP response
+     *
      * @throws \Exception
      */
     public function startStopProcessAction($start, $key, $name, $group, Request $request)
@@ -47,14 +48,13 @@ class SupervisorController extends Controller
         $success = true;
         $process = $supervisor->getProcess($group.':'.$name);
         try {
-            if ($start == "1") {
+            if ($start == '1') {
                 $success = $supervisor->startProcess($process['name']);
-            } elseif ($start == "0") {
+            } elseif ($start == '0') {
                 $success = $supervisor->stopProcess($process['name']);
             } else {
                 $success = false;
             }
-
         } catch (\Exception $e) {
             $success = false;
             $this->get('session')->getFlashBag()->add(
@@ -67,7 +67,7 @@ class SupervisorController extends Controller
             $this->get('session')->getFlashBag()->add(
                 'error',
                 $this->get('translator')->trans(
-                    ($start == "1" ? 'process.start.error' : 'process.stop.error'),
+                    ($start == '1' ? 'process.start.error' : 'process.stop.error'),
                     array(),
                     'YZSupervisorBundle'
                 )
@@ -77,9 +77,9 @@ class SupervisorController extends Controller
         if ($request->isXmlHttpRequest()) {
             $processInfo = $process;
             $res = json_encode([
-                'success'       => $success,
-                'message'       => implode(', ', $this->get('session')->getFlashBag()->get('error', array())),
-                'processInfo'   => $processInfo
+                'success' => $success,
+                'message' => implode(', ', $this->get('session')->getFlashBag()->get('error', array())),
+                'processInfo' => $processInfo,
             ]);
 
             return new Response($res, 200, [
@@ -92,12 +92,14 @@ class SupervisorController extends Controller
     }
 
     /**
-     * startStopAllProcessesAction
+     * startStopAllProcessesAction.
      *
      * @param Request $request
-     * @param string $start 1 to start, 0 to stop it
-     * @param string $key The key to retrieve a Supervisor object
+     * @param string  $start   1 to start, 0 to stop it
+     * @param string  $key     The key to retrieve a Supervisor object
+     *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
+     *
      * @throws \Exception
      */
     public function startStopAllProcessesAction(Request $request, $start, $key)
@@ -109,15 +111,15 @@ class SupervisorController extends Controller
         }
 
         $processesInfo = true;
-        if ($start == "1") {
+        if ($start == '1') {
             $processesInfo = $supervisor->startAllProcesses(false);
-        } elseif ($start == "0") {
+        } elseif ($start == '0') {
             $processesInfo = $supervisor->stopAllProcesses(false);
         }
 
         if ($request->isXmlHttpRequest()) {
             $res = json_encode([
-                'processesInfo' => $processesInfo
+                'processesInfo' => $processesInfo,
             ]);
 
             return new Response($res, 200, [
@@ -130,9 +132,10 @@ class SupervisorController extends Controller
     }
 
     /**
-     * showSupervisorLogAction
+     * showSupervisorLogAction.
      *
      * @param string $key The key to retrieve a Supervisor object
+     *
      * @return Response
      */
     public function showSupervisorLogAction($key)
@@ -152,9 +155,10 @@ class SupervisorController extends Controller
     }
 
     /**
-     * clearSupervisorLogAction
+     * clearSupervisorLogAction.
      *
      * @param string $key The key to retrieve a Supervisor object
+     *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function clearSupervisorLogAction($key)
@@ -177,11 +181,12 @@ class SupervisorController extends Controller
     }
 
     /**
-     * showProcessLogAction
+     * showProcessLogAction.
      *
      * @param string $key   The key to retrieve a Supervisor object
      * @param string $name  The name of a process
      * @param string $group The group of a process
+     *
      * @return Response
      */
     public function showProcessLogAction($key, $name, $group)
@@ -203,11 +208,12 @@ class SupervisorController extends Controller
     }
 
     /**
-     * showProcessLogErrAction
+     * showProcessLogErrAction.
      *
      * @param string $key   The key to retrieve a Supervisor object
      * @param string $name  The name of a process
      * @param string $group The group of a process
+     *
      * @return Response
      */
     public function showProcessLogErrAction($key, $name, $group)
@@ -229,11 +235,12 @@ class SupervisorController extends Controller
     }
 
     /**
-     * clearProcessLogAction
+     * clearProcessLogAction.
      *
      * @param string $key   The key to retrieve a Supervisor object
      * @param string $name  The name of a process
      * @param string $group The group of a process
+     *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function clearProcessLogAction($key, $name, $group)
@@ -257,14 +264,15 @@ class SupervisorController extends Controller
     }
 
     /**
-     * showProcessInfoAction
+     * showProcessInfoAction.
      *
-     * @param string  $key   The key to retrieve a Supervisor object
-     * @param string  $name  The name of a process
-     * @param string  $group The group of a process
+     * @param string  $key     The key to retrieve a Supervisor object
+     * @param string  $name    The name of a process
+     * @param string  $group   The group of a process
      * @param Request $request
      *
-     * @return \Symfony\Component\HttpFoundation\Response represents an HTTP response.
+     * @return \Symfony\Component\HttpFoundation\Response represents an HTTP response
+     *
      * @throws \Exception
      */
     public function showProcessInfoAction($key, $name, $group, Request $request)
@@ -286,14 +294,14 @@ class SupervisorController extends Controller
             }
 
             $res = json_encode([
-                'supervisor'    => $key,
-                'processInfo'   => $processInfo,
-                'controlLink'   => $this->generateUrl('supervisor.process.startStop', [
-                    'key'   => $key,
-                    'name'  => $name,
+                'supervisor' => $key,
+                'processInfo' => $processInfo,
+                'controlLink' => $this->generateUrl('supervisor.process.startStop', [
+                    'key' => $key,
+                    'name' => $name,
                     'group' => $group,
-                    'start' => ($infos['state'] == 10 || $infos['state'] == 20 ? '0' : '1')
-                ])
+                    'start' => ($infos['state'] == 10 || $infos['state'] == 20 ? '0' : '1'),
+                ]),
             ]);
 
             return new Response($res, 200, [
@@ -308,12 +316,13 @@ class SupervisorController extends Controller
     }
 
     /**
-     * showProcessAllInfoAction
+     * showProcessAllInfoAction.
      *
-     * @param string  $key The key to retrieve a Supervisor object
+     * @param string  $key     The key to retrieve a Supervisor object
      * @param Request $request
      *
-     * @return \Symfony\Component\HttpFoundation\Response represents an HTTP response.
+     * @return \Symfony\Component\HttpFoundation\Response represents an HTTP response
+     *
      * @throws \Exception
      */
     public function showProcessInfoAllAction($key, Request $request)
@@ -339,14 +348,14 @@ class SupervisorController extends Controller
             }
 
             $processesInfo[$infos['name']] = [
-                'supervisor'    => $key,
-                'processInfo'   => $processInfo,
-                'controlLink'   => $this->generateUrl('supervisor.process.startStop', [
-                    'key'   => $key,
-                    'name'  => $infos['name'],
+                'supervisor' => $key,
+                'processInfo' => $processInfo,
+                'controlLink' => $this->generateUrl('supervisor.process.startStop', [
+                    'key' => $key,
+                    'name' => $infos['name'],
                     'group' => $infos['group'],
-                    'start' => ($infos['state'] == 10 || $infos['state'] == 20 ? '0' : '1')
-                ])
+                    'start' => ($infos['state'] == 10 || $infos['state'] == 20 ? '0' : '1'),
+                ]),
             ];
         }
 
