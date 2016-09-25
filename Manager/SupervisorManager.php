@@ -2,19 +2,15 @@
 
 namespace YZ\SupervisorBundle\Manager;
 
-use fXmlRpc\Client as fXmlRpcClient;
-use fXmlRpc\Transport\HttpAdapterTransport;
-use GuzzleHttp\Client as GuzzleHttpClient;
-use Http\Adapter\Guzzle6\Client as Guzzle6Adapter;
-use Http\Message\MessageFactory\GuzzleMessageFactory;
-use Supervisor\Connector\XmlRpc;
 use Supervisor\Supervisor;
+use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
 /**
  * SupervisorManager.
  */
 class SupervisorManager
 {
+    use ContainerAwareTrait;
     /**
      * @var array
      */
@@ -27,30 +23,7 @@ class SupervisorManager
      */
     public function __construct(array $supervisorsConfiguration)
     {
-        foreach ($supervisorsConfiguration as $serverName => $configuration) {
-            //Create GuzzleHttp client
-            $guzzleClient = new GuzzleHttpClient(['auth' => [$configuration['username'], $configuration['password']]]);
-
-            // Pass the url and the guzzle client to the XmlRpc Client
-            $client = new fXmlRpcClient(
-              'http://'.$configuration['host'].':'.$configuration['port'].'/RPC2',
-              new HttpAdapterTransport(new GuzzleMessageFactory(), new Guzzle6Adapter($guzzleClient))
-            );
-
-            // Pass the client to the connector
-            // See the full list of connectors bellow
-            $connector = new XmlRpc($client);
-
-            $supervisor = new Supervisor($connector);
-            $key = hash('md5', serialize(array(
-              $configuration['host'],
-              $configuration['port'],
-              $configuration['username'],
-              $configuration['password'],
-            )));
-
-            $this->supervisors[$key] = $supervisor;
-        }
+        $this->supervisors = array_keys($supervisorsConfiguration);
     }
 
     /**
@@ -60,7 +33,11 @@ class SupervisorManager
      */
     public function getSupervisors()
     {
-        return $this->supervisors;
+        $values = array_map(function ($id) {
+            return $this->container->get('supervisor.server.'.$id);
+        }, $this->supervisors);
+
+        return array_combine($this->supervisors, $values);
     }
 
     /**
@@ -72,8 +49,8 @@ class SupervisorManager
      */
     public function getSupervisorByKey($key)
     {
-        if (isset($this->supervisors[$key])) {
-            return $this->supervisors[$key];
+        if ($this->container->has('supervisor.server.'.$key)) {
+            return $this->container->get('supervisor.server.'.$key);
         }
 
         return null;
