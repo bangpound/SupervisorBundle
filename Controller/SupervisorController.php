@@ -33,7 +33,7 @@ class SupervisorController extends Controller
      * @param string  $group The group of a process
      * @param Request $request
      *
-     * @return Symfony\Component\HttpFoundation\Response represents an HTTP response.
+     * @return \Symfony\Component\HttpFoundation\Response represents an HTTP response.
      * @throws \Exception
      */
     public function startStopProcessAction($start, $key, $name, $group, Request $request)
@@ -133,6 +133,7 @@ class SupervisorController extends Controller
      * showSupervisorLogAction
      *
      * @param string $key The key to retrieve a Supervisor object
+     * @return Response
      */
     public function showSupervisorLogAction($key)
     {
@@ -154,6 +155,7 @@ class SupervisorController extends Controller
      * clearSupervisorLogAction
      *
      * @param string $key The key to retrieve a Supervisor object
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function clearSupervisorLogAction($key)
     {
@@ -180,6 +182,7 @@ class SupervisorController extends Controller
      * @param string $key   The key to retrieve a Supervisor object
      * @param string $name  The name of a process
      * @param string $group The group of a process
+     * @return Response
      */
     public function showProcessLogAction($key, $name, $group)
     {
@@ -205,6 +208,7 @@ class SupervisorController extends Controller
      * @param string $key   The key to retrieve a Supervisor object
      * @param string $name  The name of a process
      * @param string $group The group of a process
+     * @return Response
      */
     public function showProcessLogErrAction($key, $name, $group)
     {
@@ -230,6 +234,7 @@ class SupervisorController extends Controller
      * @param string $key   The key to retrieve a Supervisor object
      * @param string $name  The name of a process
      * @param string $group The group of a process
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function clearProcessLogAction($key, $name, $group)
     {
@@ -259,7 +264,7 @@ class SupervisorController extends Controller
      * @param string  $group The group of a process
      * @param Request $request
      *
-     * @return Symfony\Component\HttpFoundation\Response represents an HTTP response.
+     * @return \Symfony\Component\HttpFoundation\Response represents an HTTP response.
      * @throws \Exception
      */
     public function showProcessInfoAction($key, $name, $group, Request $request)
@@ -308,7 +313,7 @@ class SupervisorController extends Controller
      * @param string  $key The key to retrieve a Supervisor object
      * @param Request $request
      *
-     * @return Symfony\Component\HttpFoundation\Response represents an HTTP response.
+     * @return \Symfony\Component\HttpFoundation\Response represents an HTTP response.
      * @throws \Exception
      */
     public function showProcessInfoAllAction($key, Request $request)
