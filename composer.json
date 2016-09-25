@@ -20,9 +20,8 @@
         "supervisorphp/configuration": "^0.2.1"
     },
     "autoload": {
-        "psr-0": { "YZ\\SupervisorBundle": "" }
+        "psr-4": { "YZ\\SupervisorBundle\\": "" }
     },
-    "target-dir": "YZ/SupervisorBundle",
     "extra": {
         "branch-alias": {
             "dev-master": "1.2.x-dev"
