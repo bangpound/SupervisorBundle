@@ -17,7 +17,10 @@
     "require": {
         "php": ">=5.4.0",
         "supervisorphp/supervisor": "^3.0.0",
-        "supervisorphp/configuration": "^0.2.1"
+        "supervisorphp/configuration": "^0.2.1",
+        "lstrojny/fxmlrpc": "^0.12.0",
+        "php-http/guzzle6-adapter": "^1.1",
+        "php-http/message": "^1.3"
     },
     "autoload": {
         "psr-4": { "YZ\\SupervisorBundle\\": "" }
