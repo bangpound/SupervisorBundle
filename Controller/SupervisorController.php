@@ -2,6 +2,7 @@
 
 namespace YZ\SupervisorBundle\Controller;
 
+use Psr\Log\LoggerAwareTrait;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -11,7 +12,10 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class SupervisorController extends Controller
 {
+    use LoggerAwareTrait;
+
     private static $publicInformations = ['description', 'group', 'name', 'state', 'statename'];
+
     /**
      * indexAction.
      */
@@ -22,6 +26,68 @@ class SupervisorController extends Controller
         return $this->render('YZSupervisorBundle:Supervisor:list.html.twig', array(
             'supervisors' => $supervisorManager->getSupervisors(),
         ));
+    }
+
+    /**
+     * Reload the configuration.
+     *
+     * @param array $valid_gnames
+     *
+     * @return Response
+     *
+     * @throws \Exception
+     */
+    public function reloadConfigAction($valid_gnames = [])
+    {
+        $supervisor = $this->container->get('supervisor.server.locahost');
+
+        $result = $supervisor->reloadConfig();
+        list($added, $changed, $removed) = $result[0];
+        if (in_array('all', $valid_gnames)) {
+            $valid_gnames = [];
+        }
+        if (!empty($valid_gnames)) {
+            $groups = [];
+            foreach ($supervisor->getAllProcessInfo() as $info) {
+                $groups[] = $info['group'];
+            }
+            $groups = array_unique(array_merge($groups, $added));
+            foreach ($valid_gnames as $gname) {
+                if (!in_array($gname, $groups)) {
+                    throw new \Exception('ERROR: no such group: %s'); /// $gname
+                }
+            }
+        }
+        foreach ($removed as $gname) {
+            if (!empty($valid_gnames) && !in_array($gname, $valid_gnames)) {
+                continue;
+            }
+
+            $results = $supervisor->stopProcessGroup($gname);
+            $this->logger->info('stopped '.$gname);
+            $supervisor->removeProcessGroup($gname);
+            $this->logger->info('removed process group '.$gname);
+        }
+
+        foreach ($changed as $gname) {
+            if (!empty($valid_gnames) && !in_array($gname, $valid_gnames)) {
+                continue;
+            }
+            $results = $supervisor->stopProcessGroup($gname);
+            $this->logger->info('stopped '.$gname);
+            $supervisor->removeProcessGroup($gname);
+            $supervisor->addProcessGroup($gname);
+            $this->logger->info('updated process group '.$gname);
+        }
+        foreach ($added as $gname) {
+            if (!empty($valid_gnames) && !in_array($gname, $valid_gnames)) {
+                continue;
+            }
+            $supervisor->addProcessGroup($gname);
+            $this->logger->info('added process group '.$gname);
+        }
+
+        return $this->redirect($this->generateUrl('supervisor'));
     }
 
     /**
