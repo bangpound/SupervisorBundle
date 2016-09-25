@@ -2,6 +2,12 @@
 
 namespace YZ\SupervisorBundle\Manager;
 
+use fXmlRpc\Client as fXmlRpcClient;
+use fXmlRpc\Transport\HttpAdapterTransport;
+use GuzzleHttp\Client as GuzzleHttpClient;
+use Http\Adapter\Guzzle6\Client as Guzzle6Adapter;
+use Http\Message\MessageFactory\GuzzleMessageFactory;
+use Supervisor\Connector\XmlRpc;
 use Supervisor\Supervisor;
 
 /**
@@ -22,8 +28,28 @@ class SupervisorManager
     public function __construct(array $supervisorsConfiguration)
     {
         foreach ($supervisorsConfiguration as $serverName => $configuration) {
-            $supervisor = new Supervisor($serverName, $configuration['host'], $configuration['username'], $configuration['password'], $configuration['port']);
-            $this->supervisors[$supervisor->getKey()] = $supervisor;
+            //Create GuzzleHttp client
+            $guzzleClient = new GuzzleHttpClient(['auth' => [$configuration['username'], $configuration['password']]]);
+
+            // Pass the url and the guzzle client to the XmlRpc Client
+            $client = new fXmlRpcClient(
+              'http://'.$configuration['host'].':'.$configuration['port'].'/RPC2',
+              new HttpAdapterTransport(new GuzzleMessageFactory(), new Guzzle6Adapter($guzzleClient))
+            );
+
+            // Pass the client to the connector
+            // See the full list of connectors bellow
+            $connector = new XmlRpc($client);
+
+            $supervisor = new Supervisor($connector);
+            $key = hash('md5', serialize(array(
+              $configuration['host'],
+              $configuration['port'],
+              $configuration['username'],
+              $configuration['password'],
+            )));
+
+            $this->supervisors[$key] = $supervisor;
         }
     }
 

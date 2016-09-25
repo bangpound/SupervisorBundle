@@ -45,12 +45,12 @@ class SupervisorController extends Controller
         }
 
         $success = true;
-        $process = $supervisor->getProcessByNameAndGroup($name, $group);
+        $process = $supervisor->getProcess($group.':'.$name);
         try {
             if ($start == "1") {
-                $success = $process->startProcess();
+                $success = $supervisor->startProcess($process['name']);
             } elseif ($start == "0") {
-                $success = $process->stopProcess();
+                $success = $supervisor->stopProcess($process['name']);
             } else {
                 $success = false;
             }
@@ -75,7 +75,7 @@ class SupervisorController extends Controller
         }
 
         if ($request->isXmlHttpRequest()) {
-            $processInfo = $process->getProcessInfo();
+            $processInfo = $process;
             $res = json_encode([
                 'success'       => $success,
                 'message'       => implode(', ', $this->get('session')->getFlashBag()->get('error', array())),
@@ -185,14 +185,14 @@ class SupervisorController extends Controller
     {
         $supervisorManager = $this->get('supervisor.manager');
         $supervisor = $supervisorManager->getSupervisorByKey($key);
-        $process = $supervisor->getProcessByNameAndGroup($name, $group);
+        $process = $supervisor->getProcess($name.':'.$group);
 
         if (!$supervisor) {
             throw new \Exception('Supervisor not found');
         }
 
-        $result = $process->tailProcessStdoutLog(0, 1);
-        $stdout = $process->tailProcessStdoutLog(0, $result[1]);
+        $result = $supervisor->tailProcessStdoutLog($name.':'.$group, 0, 1);
+        $stdout = $supervisor->tailProcessStdoutLog($name.':'.$group, 0, $result[1]);
 
         return $this->render('YZSupervisorBundle:Supervisor:showLog.html.twig', array(
             'log' => $stdout[0],
@@ -210,14 +210,14 @@ class SupervisorController extends Controller
     {
         $supervisorManager = $this->get('supervisor.manager');
         $supervisor = $supervisorManager->getSupervisorByKey($key);
-        $process = $supervisor->getProcessByNameAndGroup($name, $group);
+        $process = $supervisor->getProcess($name.':'.$group);
 
         if (!$supervisor) {
             throw new \Exception('Supervisor not found');
         }
 
-        $result = $process->tailProcessStderrLog(0, 1);
-        $stderr = $process->tailProcessStderrLog(0, $result[1]);
+        $result = $supervisor->tailProcessStderrLog($name.':'.$group, 0, 1);
+        $stderr = $supervisor->tailProcessStderrLog($name.':'.$group, 0, $result[1]);
 
         return $this->render('YZSupervisorBundle:Supervisor:showLog.html.twig', array(
             'log' => $stderr[0],
@@ -235,13 +235,13 @@ class SupervisorController extends Controller
     {
         $supervisorManager = $this->get('supervisor.manager');
         $supervisor = $supervisorManager->getSupervisorByKey($key);
-        $process = $supervisor->getProcessByNameAndGroup($name, $group);
+        $process = $supervisor->getProcess($name.':'.$group);
 
         if (!$supervisor) {
             throw new \Exception('Supervisor not found');
         }
 
-        if ($process->clearProcessLogs() !== true) {
+        if ($supervisor->clearProcessLogs($name.':'.$group) !== true) {
             $this->get('session')->getFlashBag()->add(
                 'error',
                 $this->get('translator')->trans('logs.delete.error', array(), 'YZSupervisorBundle')
@@ -266,13 +266,13 @@ class SupervisorController extends Controller
     {
         $supervisorManager = $this->get('supervisor.manager');
         $supervisor = $supervisorManager->getSupervisorByKey($key);
-        $process = $supervisor->getProcessByNameAndGroup($name, $group);
+        $process = $supervisor->getProcess($name.':'.$group);
 
         if (!$supervisor) {
             throw new \Exception('Supervisor not found');
         }
 
-        $infos = $process->getProcessInfo();
+        $infos = $process->getPayload();
 
         if ($request->isXmlHttpRequest()) {
             $processInfo = [];
@@ -324,10 +324,10 @@ class SupervisorController extends Controller
             throw new \Exception('Supervisor not found');
         }
 
-        $processes = $supervisor->getProcesses();
+        $processes = $supervisor->getAllProcesses();
         $processesInfo = [];
         foreach ($processes as $process) {
-            $infos = $process->getProcessInfo();
+            $infos = $process;
             $processInfo = [];
             foreach (self::$publicInformations as $public) {
                 $processInfo[$public] = $infos[$public];
