@@ -18,7 +18,7 @@
         "php": ">=5.4.0",
         "supervisorphp/supervisor": "^3.0.0",
         "supervisorphp/configuration": "^0.2.1",
-        "lstrojny/fxmlrpc": "^0.12.0",
+        "lstrojny/fxmlrpc": "^0.12",
         "php-http/guzzle6-adapter": "^1.1",
         "php-http/message": "^1.3"
     },
